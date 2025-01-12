@@ -32,7 +32,7 @@ try:
     data = pd.read_csv(data_path, low_memory=False)
     st.write("### Data Preview")
     st.write(data.head())
-    
+
     # Initial Inspection
     st.write("### Dataset Information")
     st.write(f"Shape: {data.shape}")
@@ -80,6 +80,35 @@ try:
     corr_matrix = data[numeric_features].corr()
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
+    st.pyplot(fig)
+
+    # New Visualization: Sales Distribution by Month
+    st.write("#### Sales Distribution by Month")
+    monthly_distribution = data.groupby('Month')['Amount'].sum().reset_index()
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.barplot(data=monthly_distribution, x='Month', y='Amount', ax=ax, palette='viridis')
+    ax.set_title("Sales Distribution by Month")
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Total Sales")
+    st.pyplot(fig)
+
+    # New Visualization: Year-over-Year Sales Comparison
+    st.write("#### Year-over-Year Sales Trend")
+    yearly_sales = data.groupby(['Year', 'Month'])['Amount'].sum().reset_index()
+    yearly_sales['Date'] = pd.to_datetime(yearly_sales[['Year', 'Month']].assign(Day=1))
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.lineplot(data=yearly_sales, x='Date', y='Amount', hue='Year', ax=ax, palette='tab10')
+    ax.set_title("Year-over-Year Sales Trend")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Total Sales")
+    st.pyplot(fig)
+
+    # New Visualization: Category-wise Sales Contribution
+    st.write("#### Category-wise Sales Contribution")
+    category_contribution = data.groupby('Category')['Amount'].sum()
+    fig, ax = plt.subplots()
+    ax.pie(category_contribution, labels=category_contribution.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette('pastel'))
+    ax.set_title("Sales Contribution by Category")
     st.pyplot(fig)
 
     # Dimensionality Reduction (PCA)
